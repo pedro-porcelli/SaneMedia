@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="/backend/index.js"></script>
+</head>
+<body>
+    <script>
+        import { initializeApp } from "firebase/app";
+        import { getDatabase, ref, set } from "firebase/database";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBnCDscN1KDWzMAejS2f3F3DvbtSJgbJ44",
+            authDomain: "sanemedia-b4ee1.firebaseapp.com",
+            projectId: "sanemedia-b4ee1",
+            storageBucket: "sanemedia-b4ee1.appspot.com",
+            messagingSenderId: "811825965256",
+            appId: "1:811825965256:web:376a8b8db300640ec51dfd",
+            measurementId: "G-YN60PP9H50"
+        };
+
+        const app = initializeApp(firebaseConfig);
+
+        function writeData(username, password) {
+        const db = getDatabase();
+        const refrence = ref(db, 'users/' + username);
+
+        set(refrence, {
+            username: username,
+            password: password
+        });
+        }
+
+                document.addEventListener("submit", (e) => {
+                    e.preventDefault();
+                    writeData("Hello", "World");
+                });
+
+// Initialize Firebase
+
+    </script>
+
+    <form method="post" id="login" onsubmit="">
+        <input class="username">
+        <input class="password">
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
