@@ -1,32 +1,33 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set } from "firebase/database";
-import { write } from "fs";
 import express from 'express';
-import bodyParser from 'body-parser';
+import bodyParser from "body-parser";
+import bodyParser from "body-parser";
 
-var exp = express();
-var username = "";
-var password = "";
-const PORT = 3333;
+//init express
+const exp = express(); 
 
-exp.use( bodyParser.json() );
+const bodyParser = bodyParser();
 
-exp.listen(PORT, () => console.log("alive on http://localhost:3333"))
+exp.use(cors({ origin: "*" }));
 
-exp.post('/addUser', function (req, res) {
-  username = req.body;
-  password = req.body;
+app.use( bodyParser.json );
 
-  if (!username || !password || !username && !password) {
-    res.status(418).send({message: "ERROR: Missing Information!"})
+// public vars
+var PORT = 9955;
+var HOST = 'localhost'
+
+exp.get('/:email/:password', (req, res) => {
+  if(!req.params.email || !req.params.password || !req.params.email && !req.params.password) {
+    res.status(400).json({
+      "error": "400: Missing parameters!"
+    });
   }
-})
+});
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+exp.listen(PORT, console.log("Listening on port " + PORT));
 
-// Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBnCDscN1KDWzMAejS2f3F3DvbtSJgbJ44",
@@ -41,6 +42,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+//write data ro realtime db
+
 function writeData(username, password) {
   const db = getDatabase();
   const refrence = ref(db, 'users/' + username);
@@ -51,4 +54,5 @@ function writeData(username, password) {
   });
 }
 
-writeData("Nick", "Rick");
+
+// Testing
