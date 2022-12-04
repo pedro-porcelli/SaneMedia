@@ -3,27 +3,38 @@ import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set } from "firebase/database";
 import express from 'express';
 import bodyParser from "body-parser";
-import bodyParser from "body-parser";
+import cors from 'cors';
+import fetch from 'fetch';
 
 //init express
 const exp = express(); 
 
-const bodyParser = bodyParser();
+exp.use(cors());
 
-exp.use(cors({ origin: "*" }));
+exp.use(express.json());
 
-app.use( bodyParser.json );
+exp.use(express.urlencoded({ extended: true }));
+
 
 // public vars
 var PORT = 9955;
 var HOST = 'localhost'
 
-exp.get('/:email/:password', (req, res) => {
-  if(!req.params.email || !req.params.password || !req.params.email && !req.params.password) {
+exp.post('/addUsr', (req, res) => {
+
+  const { email } = req.body;
+  const { password } = req.body;
+
+  if(!email) {
     res.status(400).json({
       "error": "400: Missing parameters!"
     });
   }
+
+  res.json({
+    "email": email,
+    "password": password
+  });
 });
 
 exp.listen(PORT, console.log("Listening on port " + PORT));
