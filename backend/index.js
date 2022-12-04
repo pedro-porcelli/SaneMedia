@@ -1,10 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, set, onValue } from "firebase/database";
 import express from 'express';
-import bodyParser from "body-parser";
 import cors from 'cors';
-import fetch from 'fetch';
+import crypto from 'crypto';
 
 //init express
 const exp = express(); 
@@ -19,25 +18,40 @@ exp.use(express.urlencoded({ extended: true }));
 // public vars
 var PORT = 9955;
 var HOST = 'localhost'
+//handle post reqs
 
 exp.post('/addUsr', (req, res) => {
 
-  const { email } = req.body;
+  const { username } = req.body;
   const { password } = req.body;
 
-  if(!email) {
+  if(!username || !password || !username && !password) {
     res.status(400).json({
-      "error": "400: Missing parameters!"
+      "error": "Missing parameters!"
     });
   }
 
-  res.json({
-    "email": email,
+  console.log("input: " + username);
+
+  const user = getUser(username);
+
+  if (!user){
+    res.status(400).json({
+      "error": "User already exists."
+    });
+    return;
+  }
+
+  postUser(username, password);
+
+  res.status(200).json({
+    "username": username,
     "password": password
   });
+
 });
 
-exp.listen(PORT, console.log("Listening on port " + PORT));
+exp.listen(PORT);
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -55,15 +69,28 @@ const app = initializeApp(firebaseConfig);
 
 //write data ro realtime db
 
-function writeData(username, password) {
+function postUser(username, password) {
   const db = getDatabase();
-  const refrence = ref(db, 'users/' + username);
+  const refx = ref(db, 'users/' + hash(username));
 
-  set(refrence, {
+  set(refx, {
     username: username,
-    password: password
+    password: hash(password)
+  });
+}
+
+function getUser(username) {
+  console.log("username: " + username);
+  const db = getDatabase();
+  const refrence = ref(db, 'users/' + hash(username));
+
+  onValue(refrence, (snapshot) => {
+    let data = snapshot.val();
+    console.log(data);
   });
 }
 
 
-// Testing
+function hash(value){
+  return crypto.createHash('sha1').update(value).digest('hex');
+}
